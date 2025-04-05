@@ -1,106 +1,101 @@
+
 const db = firebase.database();
 
-// Referencias
 const machineForm = document.getElementById("machine-form");
 const parameterForm = document.getElementById("parameter-form");
+const machineTable = document.querySelector("#machine-table tbody");
+const parameterTable = document.querySelector("#parameter-table tbody");
 const machineSelect = document.getElementById("machine-select");
-const machineTable = document.getElementById("machine-table").querySelector("tbody");
-const parameterTable = document.getElementById("parameter-table").querySelector("tbody");
 
-let editingMachineKey = null;
-let editingParameterKey = null;
+let editingMachineId = null;
+let editingParamId = null;
 
-// ------------------------- MÁQUINAS -------------------------
-
+// Guardar máquina
 machineForm.addEventListener("submit", (e) => {
   e.preventDefault();
-
   const name = document.getElementById("machine-name").value;
   const area = document.getElementById("machine-area").value;
   const power = document.getElementById("machine-power").value;
   const type = document.getElementById("machine-type").value;
 
-  const machineData = { name, area, power, type };
+  const newMachine = { name, area, power, type };
 
-  if (editingMachineKey) {
-    db.ref("machines/" + editingMachineKey).set(machineData);
-    editingMachineKey = null;
+  if (editingMachineId) {
+    db.ref("machines/" + editingMachineId).set(newMachine);
+    editingMachineId = null;
   } else {
-    db.ref("machines").push(machineData);
+    db.ref("machines").push(newMachine);
   }
 
   machineForm.reset();
 });
 
 function loadMachines() {
-  db.ref("machines").on("value", (snapshot) => {
+  const machinesRef = db.ref("machines");
+
+  machinesRef.on("value", (snapshot) => {
     machineTable.innerHTML = "";
-    machineSelect.innerHTML = `<option value="">Seleccionar máquina</option>`;
-    snapshot.forEach((child) => {
-      const machine = child.val();
-      const key = child.key;
+    machineSelect.innerHTML = '<option value="">Seleccionar máquina</option>';
 
-      // Tabla
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${machine.name}</td>
-        <td>${machine.area}</td>
-        <td>${machine.power}</td>
-        <td>${machine.type}</td>
-        <td>
-          <button class="action-btn edit" onclick="editMachine('${key}')">Editar</button>
-          <button class="action-btn" onclick="deleteMachine('${key}')">Borrar</button>
-        </td>
-      `;
-      machineTable.appendChild(row);
+    const machines = snapshot.val();
+    if (machines) {
+      Object.entries(machines).forEach(([key, machine]) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${machine.name}</td>
+          <td>${machine.area}</td>
+          <td>${machine.power}</td>
+          <td>${machine.type}</td>
+          <td>
+            <button class="action-btn edit" onclick="editMachine('${key}')">Editar</button>
+            <button class="action-btn" onclick="deleteMachine('${key}')">Borrar</button>
+          </td>
+        `;
+        machineTable.appendChild(row);
 
-      // Select
-      const option = document.createElement("option");
-      option.value = machine.name;
-      option.textContent = machine.name;
-      machineSelect.appendChild(option);
-    });
+        const option = document.createElement("option");
+        option.value = machine.name;
+        option.textContent = machine.name;
+        machineSelect.appendChild(option);
+      });
+    }
   });
 }
 
-function editMachine(key) {
-  db.ref("machines/" + key).once("value").then((snap) => {
-    const data = snap.val();
-    document.getElementById("machine-name").value = data.name;
-    document.getElementById("machine-area").value = data.area;
-    document.getElementById("machine-power").value = data.power;
-    document.getElementById("machine-type").value = data.type;
-    editingMachineKey = key;
+function editMachine(id) {
+  db.ref("machines/" + id).once("value", (snapshot) => {
+    const machine = snapshot.val();
+    document.getElementById("machine-name").value = machine.name;
+    document.getElementById("machine-area").value = machine.area;
+    document.getElementById("machine-power").value = machine.power;
+    document.getElementById("machine-type").value = machine.type;
+    editingMachineId = id;
   });
 }
 
-function deleteMachine(key) {
-  db.ref("machines/" + key).remove();
+function deleteMachine(id) {
+  db.ref("machines/" + id).remove();
 }
 
-// ------------------------- PARÁMETROS -------------------------
-
+// Guardar parámetro
 parameterForm.addEventListener("submit", (e) => {
   e.preventDefault();
-
-  const processType = document.getElementById("process-type").value;
+  const process = document.getElementById("process-type").value;
   const material = document.getElementById("material").value;
   const thickness = document.getElementById("thickness").value;
   const speed = document.getElementById("speed").value;
   const power = document.getElementById("power").value;
   const hatch = document.getElementById("hatch").value;
-  const observations = document.getElementById("observations").value;
-  const machine = machineSelect.value;
+  const obs = document.getElementById("observations").value;
+  const machine = document.getElementById("machine-select").value;
 
-  const paramData = {
-    processType, material, thickness, speed, power, hatch, observations, machine,
-  };
+  const param = { process, material, thickness, speed, power, hatch, obs, machine };
 
-  if (editingParameterKey) {
-    db.ref("parameters/" + editingParameterKey).set(paramData);
-    editingParameterKey = null;
+  if (editingParamId) {
+    db.ref("parameters/" + editingParamId).set(param);
+    editingParamId = null;
   } else {
-    db.ref("parameters").push(paramData);
+    db.ref("parameters").push(param);
   }
 
   parameterForm.reset();
@@ -109,84 +104,71 @@ parameterForm.addEventListener("submit", (e) => {
 function loadParameters() {
   db.ref("parameters").on("value", (snapshot) => {
     parameterTable.innerHTML = "";
-    snapshot.forEach((child) => {
-      const param = child.val();
-      const key = child.key;
-
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${param.processType}</td>
-        <td>${param.material}</td>
-        <td>${param.thickness}</td>
-        <td>${param.speed}</td>
-        <td>${param.power}</td>
-        <td>${param.hatch}</td>
-        <td>${param.observations}</td>
-        <td>${param.machine}</td>
-        <td>
-          <button class="action-btn edit" onclick="editParameter('${key}')">Editar</button>
-          <button class="action-btn" onclick="deleteParameter('${key}')">Borrar</button>
-        </td>
-      `;
-      parameterTable.appendChild(row);
-    });
+    const data = snapshot.val();
+    if (data) {
+      Object.entries(data).forEach(([key, param]) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${param.process}</td>
+          <td>${param.material}</td>
+          <td>${param.thickness}</td>
+          <td>${param.speed}</td>
+          <td>${param.power}</td>
+          <td>${param.hatch}</td>
+          <td>${param.obs}</td>
+          <td>${param.machine}</td>
+          <td>
+            <button class="action-btn edit" onclick="editParam('${key}')">Editar</button>
+            <button class="action-btn" onclick="deleteParam('${key}')">Borrar</button>
+          </td>
+        `;
+        parameterTable.appendChild(row);
+      });
+    }
   });
 }
 
-function editParameter(key) {
-  db.ref("parameters/" + key).once("value").then((snap) => {
-    const p = snap.val();
-    document.getElementById("process-type").value = p.processType;
-    document.getElementById("material").value = p.material;
-    document.getElementById("thickness").value = p.thickness;
-    document.getElementById("speed").value = p.speed;
-    document.getElementById("power").value = p.power;
-    document.getElementById("hatch").value = p.hatch;
-    document.getElementById("observations").value = p.observations;
-    machineSelect.value = p.machine;
-    editingParameterKey = key;
+function editParam(id) {
+  db.ref("parameters/" + id).once("value", (snapshot) => {
+    const param = snapshot.val();
+    document.getElementById("process-type").value = param.process;
+    document.getElementById("material").value = param.material;
+    document.getElementById("thickness").value = param.thickness;
+    document.getElementById("speed").value = param.speed;
+    document.getElementById("power").value = param.power;
+    document.getElementById("hatch").value = param.hatch;
+    document.getElementById("observations").value = param.obs;
+    document.getElementById("machine-select").value = param.machine;
+    editingParamId = id;
   });
 }
 
-function deleteParameter(key) {
-  db.ref("parameters/" + key).remove();
+function deleteParam(id) {
+  db.ref("parameters/" + id).remove();
 }
-
-// ------------------------- IMPRESIONES -------------------------
 
 function printAll() {
   window.print();
 }
 
 function printByMachine() {
-  const machine = prompt("Ingrese el nombre exacto de la máquina:");
-  if (!machine) return;
-
-  const rows = Array.from(parameterTable.querySelectorAll("tr"));
-  rows.forEach(row => {
-    row.style.display = row.children[7].textContent === machine ? "" : "none";
+  const machine = prompt("Ingrese el nombre de la máquina:");
+  Array.from(parameterTable.rows).forEach((row) => {
+    row.style.display = row.cells[7].textContent === machine ? "" : "none";
   });
-
   window.print();
-
-  rows.forEach(row => row.style.display = "");
+  loadParameters();
 }
 
 function printByMaterial() {
-  const material = prompt("Ingrese el nombre exacto del material:");
-  if (!material) return;
-
-  const rows = Array.from(parameterTable.querySelectorAll("tr"));
-  rows.forEach(row => {
-    row.style.display = row.children[1].textContent === material ? "" : "none";
+  const material = prompt("Ingrese el nombre del material:");
+  Array.from(parameterTable.rows).forEach((row) => {
+    row.style.display = row.cells[1].textContent === material ? "" : "none";
   });
-
   window.print();
-
-  rows.forEach(row => row.style.display = "");
+  loadParameters();
 }
 
-// ------------------------- INICIO -------------------------
-
+// Inicialización
 loadMachines();
 loadParameters();

@@ -1,25 +1,25 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Parámetros de Corte y Grabado</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Parámetros de Corte Láser</title>
   <link rel="stylesheet" href="style.css" />
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 </head>
 <body>
-  <h1>Parámetros de Corte, Grabado y Marcado</h1>
+  <h1>Parámetros de Corte y Grabado Láser</h1>
 
-  <!-- FORMULARIO DE MÁQUINAS -->
   <section>
     <h2>Cargar Máquina</h2>
     <form id="machine-form">
-      <input type="text" id="machine-name" placeholder="Nombre de la máquina" required />
+      <input type="text" id="machine-name" placeholder="Nombre" required />
       <input type="text" id="machine-area" placeholder="Área de trabajo" required />
       <input type="text" id="machine-power" placeholder="Potencia" required />
       <select id="machine-type" required>
-        <option value="">Tipo</option>
+        <option value="">Tipo de máquina</option>
         <option value="CO2">CO2</option>
         <option value="Fibra">Fibra</option>
         <option value="Diodo">Diodo</option>
@@ -27,11 +27,6 @@
       </select>
       <button type="submit">Guardar Máquina</button>
     </form>
-  </section>
-
-  <!-- TABLA DE MÁQUINAS -->
-  <section>
-    <h2>Máquinas Registradas</h2>
     <table id="machine-table">
       <thead>
         <tr>
@@ -46,9 +41,8 @@
     </table>
   </section>
 
-  <!-- FORMULARIO DE PARÁMETROS -->
   <section>
-    <h2>Cargar Parámetro</h2>
+    <h2>Parámetros</h2>
     <form id="parameter-form">
       <select id="process-type" required>
         <option value="">Proceso</option>
@@ -59,55 +53,50 @@
 
       <input list="materiales" id="material" placeholder="Material" required />
       <datalist id="materiales">
-        <option value="MDF">
-        <option value="Marmol">
-        <option value="Mosaico">
-        <option value="Azulejo">
-        <option value="Cuero">
-        <option value="Lapiz Madera">
-        <option value="Lapicera Bambu">
-        <option value="Acero Inox">
-        <option value="Aluminio">
-        <option value="Placa Mascotas">
-        <option value="Acrilico 2mm">
-        <option value="Acrilico 3mm">
-        <option value="Sellos">
-        <option value="Ecocuero">
-        <option value="Vidrio">
-        <option value="Bombillas">
-        <option value="Bicapa">
-        <option value="Mates de madera">
-        <option value="QR">
-        <option value="Polyfan">
-        <option value="Tabla">
-        <option value="Stencil">
-        <option value="Tela jeans">
+        <option value="MDF" />
+        <option value="Marmol" />
+        <option value="Mosaico" />
+        <option value="Azulejo" />
+        <option value="Cuero" />
+        <option value="Lapiz Madera" />
+        <option value="Lapicera Bambu" />
+        <option value="Acero Inox" />
+        <option value="Aluminio" />
+        <option value="Placa Mascotas" />
+        <option value="Acrilico 2mm" />
+        <option value="Acrilico 3mm" />
+        <option value="Sellos" />
+        <option value="Ecocuero" />
+        <option value="Vidrio" />
+        <option value="Bombillas" />
+        <option value="Bicapa" />
+        <option value="Mates de madera" />
+        <option value="QR" />
+        <option value="Polyfan" />
+        <option value="Tabla" />
+        <option value="Stencil" />
+        <option value="Tela jeans" />
       </datalist>
 
       <input type="text" id="thickness" placeholder="Grosor" required />
       <input type="text" id="speed" placeholder="Velocidad" required />
       <input type="text" id="power" placeholder="Potencia" required />
-      <input type="text" id="hatch" placeholder="Hatch" />
+      <input type="text" id="hatch" placeholder="Hatch" required />
       <input type="text" id="observations" placeholder="Observaciones" />
-      <select id="machine-select" required>
-        <option value="">Seleccionar máquina</option>
-      </select>
+      <select id="machine-select" required></select>
       <button type="submit">Guardar Parámetro</button>
     </form>
-  </section>
 
-  <!-- TABLA DE PARÁMETROS -->
-  <section>
-    <h2>Parámetros Guardados</h2>
-    <div class="print-buttons">
-      <button onclick="printAll()">🖨️ Imprimir todo</button>
-      <button onclick="printByMachine()">🖨️ Imprimir por máquina</button>
-      <button onclick="printByMaterial()">🖨️ Imprimir por material</button>
+    <div>
+      <button onclick="printAll()">Imprimir Todo</button>
+      <button onclick="printByMachine()">Imprimir por Máquina</button>
+      <button onclick="printByMaterial()">Imprimir por Material</button>
     </div>
+
     <table id="parameter-table">
       <thead>
         <tr>
-          <th>Proceso</th>
+          <th>Tipo</th>
           <th>Material</th>
           <th>Grosor</th>
           <th>Velocidad</th>
@@ -122,20 +111,18 @@
     </table>
   </section>
 
-  <!-- FIREBASE CONFIG -->
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyBmvpWKmXzEjtybCCu_f74jAaHevY6Xg88",
       authDomain: "parametroslaser.firebaseapp.com",
-      databaseURL: "https://parametroslaser-default-rtdb.firebaseio.com",
       projectId: "parametroslaser",
-      storageBucket: "parametroslaser.appspot.com",
+      storageBucket: "parametroslaser.firebasestorage.app",
       messagingSenderId: "224538884368",
-      appId: "1:224538884368:web:298e319d40739e44fe8d95"
+      appId: "1:224538884368:web:298e319d40739e44fe8d95",
+      databaseURL: "https://parametroslaser-default-rtdb.firebaseio.com"
     };
     firebase.initializeApp(firebaseConfig);
   </script>
-
   <script src="script.js"></script>
 </body>
 </html>
