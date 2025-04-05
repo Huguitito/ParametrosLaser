@@ -1,24 +1,26 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Parámetros Corte y Grabado</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <title>Parámetros Láser</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
 <body>
   <h1>Parámetros de Corte, Grabado y Marcado</h1>
 
-  <!-- 📦 Formulario de máquinas -->
+  <!-- Formulario para agregar máquinas -->
   <form id="machine-form">
-    <h2>Agregar Máquina</h2>
-    <input type="text" id="machine-name" placeholder="Nombre de la máquina" required />
-    <input type="text" id="machine-area" placeholder="Superficie de trabajo" required />
-    <input type="text" id="machine-power" placeholder="Potencia" required />
+    <h2>Nueva Máquina</h2>
+    <input type="text" id="machine-name" placeholder="Nombre" required>
+    <input type="text" id="machine-area" placeholder="Superficie de trabajo" required>
+    <input type="text" id="machine-power" placeholder="Potencia" required>
     <select id="machine-type" required>
-      <option value="">Tipo de máquina</option>
+      <option value="">Tipo</option>
       <option value="CO2">CO2</option>
       <option value="Fibra">Fibra</option>
       <option value="Diodo">Diodo</option>
@@ -27,71 +29,55 @@
     <button type="submit">Agregar máquina</button>
   </form>
 
-  <!-- 🧾 Formulario de parámetros -->
-  <form id="parameter-form">
-    <h2>Agregar Parámetro</h2>
+  <!-- Tabla de máquinas -->
+  <h2>Máquinas cargadas</h2>
+  <table id="machine-table">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Superficie</th>
+        <th>Potencia</th>
+        <th>Tipo</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
+  <!-- Formulario para agregar parámetros -->
+  <form id="parameter-form">
+    <h2>Nuevo Parámetro</h2>
     <select id="process-type" required>
-      <option value="">Tipo de proceso</option>
+      <option value="">Proceso</option>
       <option value="Corte">Corte</option>
       <option value="Grabado">Grabado</option>
       <option value="Marcado">Marcado</option>
     </select>
-
-    <select id="material" required>
-      <option value="">Material</option>
-      <option value="MDF">MDF</option>
-      <option value="Mármol">Mármol</option>
-      <option value="Mosaico">Mosaico</option>
-      <option value="Azulejo">Azulejo</option>
-      <option value="Cuero">Cuero</option>
-      <option value="Lápiz Madera">Lápiz Madera</option>
-      <option value="Lapicera Bambú">Lapicera Bambú</option>
-      <option value="Acero Inox">Acero Inox</option>
-      <option value="Aluminio">Aluminio</option>
-      <option value="Placa Mascotas">Placa Mascotas</option>
-      <option value="Acrílico 2mm">Acrílico 2mm</option>
-      <option value="Acrílico 3mm">Acrílico 3mm</option>
-      <option value="Sellos">Sellos</option>
-      <option value="Ecocuero">Ecocuero</option>
-      <option value="Vidrio">Vidrio</option>
-      <option value="Bombillas">Bombillas</option>
-      <option value="Bicapa">Bicapa</option>
-      <option value="Mates de madera">Mates de madera</option>
-      <option value="QR">QR</option>
-      <option value="Polyfan">Polyfan</option>
-      <option value="Tabla">Tabla</option>
-      <option value="Stencil">Stencil</option>
-      <option value="Tela jeans">Tela jeans</option>
-      <option value="Otro">Otro (completar en observaciones)</option>
-    </select>
-
-    <input type="text" id="thickness" placeholder="Espesor" required />
-    <input type="text" id="speed" placeholder="Velocidad" required />
-    <input type="text" id="power" placeholder="Potencia" required />
-    <input type="text" id="hatch" placeholder="Hatch" />
-    <textarea id="observations" placeholder="Observaciones"></textarea>
-
+    <input type="text" id="material" placeholder="Material (escribí libremente)" required>
+    <input type="text" id="thickness" placeholder="Espesor" required>
+    <input type="text" id="speed" placeholder="Velocidad" required>
+    <input type="text" id="power" placeholder="Potencia" required>
+    <input type="text" id="hatch" placeholder="Hatch">
+    <input type="text" id="observations" placeholder="Observaciones">
     <select id="machine-select" required>
       <option value="">Seleccionar máquina</option>
     </select>
-
     <button type="submit">Guardar parámetro</button>
   </form>
 
-  <!-- 🔍 Filtros y acciones -->
-  <div class="controls" id="controls">
-    <label for="filter-machine"><strong>Filtrar por máquina:</strong></label>
-    <select id="filter-machine">
-      <option value="">Todas</option>
-    </select>
+  <!-- Controles de impresión y filtrado -->
+  <div class="controls">
+    <button onclick="printAll()">🖨️ Imprimir todos</button>
+    <button onclick="printByMachine()">🖨️ Imprimir por máquina</button>
+    <button onclick="printByMaterial()">🖨️ Imprimir por material</button>
   </div>
 
-  <!-- 📊 Tabla de parámetros -->
+  <!-- Tabla de parámetros -->
+  <h2>Parámetros guardados</h2>
   <table id="parameter-table">
     <thead>
       <tr>
-        <th>Tipo</th>
+        <th>Proceso</th>
         <th>Material</th>
         <th>Espesor</th>
         <th>Velocidad</th>
@@ -102,14 +88,11 @@
         <th>Acciones</th>
       </tr>
     </thead>
-    <tbody>
-      <!-- Los datos van a cargarse acá -->
-    </tbody>
+    <tbody></tbody>
   </table>
 
-  <!-- 🔧 Configuración Firebase y lógica -->
+  <!-- Firebase Config -->
   <script>
-    // Configuración de Firebase (reemplazá con tus datos reales)
     const firebaseConfig = {
     apiKey: "AIzaSyBmvpWKmXzEjtybCCu_f74jAaHevY6Xg88",
     authDomain: "parametroslaser.firebaseapp.com",

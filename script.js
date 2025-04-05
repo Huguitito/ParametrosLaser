@@ -1,46 +1,86 @@
-// Cargar máquinas desde Firebase y llenar los select
+const db = firebase.database();
+
+// FORMULARIOS
+const machineForm = document.getElementById("machine-form");
+const parameterForm = document.getElementById("parameter-form");
+
+// TABLAS
+const machineTable = document.getElementById("machine-table").querySelector("tbody");
+const parameterTable = document.getElementById("parameter-table").querySelector("tbody");
+const machineSelect = document.getElementById("machine-select");
+
+// FUNCIONES MÁQUINAS
+machineForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const machine = {
+    name: document.getElementById("machine-name").value,
+    area: document.getElementById("machine-area").value,
+    power: document.getElementById("machine-power").value,
+    type: document.getElementById("machine-type").value
+  };
+  const newRef = db.ref("machines").push();
+  newRef.set(machine);
+  machineForm.reset();
+});
+
 function loadMachines() {
-  const machineSelect = document.getElementById("machine-select");
-  const filterSelect = document.getElementById("filter-machine");
-
-  machineSelect.innerHTML = '<option value="">Seleccionar máquina</option>';
-  filterSelect.innerHTML = '<option value="">Todas</option>';
-
-  firebase.database().ref("machines").once("value", (snapshot) => {
+  db.ref("machines").on("value", (snapshot) => {
+    machineTable.innerHTML = "";
+    machineSelect.innerHTML = '<option value="">Seleccionar máquina</option>';
     snapshot.forEach((child) => {
-      const name = child.val().name;
-      const option1 = document.createElement("option");
-      const option2 = document.createElement("option");
-      option1.value = name;
-      option2.value = name;
-      option1.textContent = name;
-      option2.textContent = name;
-      machineSelect.appendChild(option1);
-      filterSelect.appendChild(option2);
+      const machine = child.val();
+      const id = child.key;
+
+      // Tabla
+      const row = machineTable.insertRow();
+      row.innerHTML = `
+        <td>${machine.name}</td>
+        <td>${machine.area}</td>
+        <td>${machine.power}</td>
+        <td>${machine.type}</td>
+        <td>
+          <button class="edit" onclick="editMachine('${id}', '${machine.name}', '${machine.area}', '${machine.power}', '${machine.type}')">✏️</button>
+          <button class="delete" onclick="deleteMachine('${id}')">🗑️</button>
+        </td>
+      `;
+
+      // Select
+      const option = document.createElement("option");
+      option.value = machine.name;
+      option.text = machine.name;
+      machineSelect.appendChild(option);
     });
   });
 }
 
-// Agregar máquina
-const machineForm = document.getElementById("machine-form");
-machineForm.addEventListener("submit", (e) => {
-  e.preventDefault();
-  const name = document.getElementById("machine-name").value;
-  const area = document.getElementById("machine-area").value;
-  const power = document.getElementById("machine-power").value;
-  const type = document.getElementById("machine-type").value;
+function editMachine(id, name, area, power, type) {
+  document.getElementById("machine-name").value = name;
+  document.getElementById("machine-area").value = area;
+  document.getElementById("machine-power").value = power;
+  document.getElementById("machine-type").value = type;
+  machineForm.onsubmit = function (e) {
+    e.preventDefault();
+    db.ref("machines/" + id).set({
+      name: document.getElementById("machine-name").value,
+      area: document.getElementById("machine-area").value,
+      power: document.getElementById("machine-power").value,
+      type: document.getElementById("machine-type").value
+    });
+    machineForm.reset();
+    machineForm.onsubmit = defaultMachineSubmit;
+  };
+}
+const defaultMachineSubmit = machineForm.onsubmit;
 
-  const newRef = firebase.database().ref("machines").push();
-  newRef.set({ name, area, power, type }, loadMachines);
-  machineForm.reset();
-});
+function deleteMachine(id) {
+  db.ref("machines/" + id).remove();
+}
 
-// Agregar parámetro
-const paramForm = document.getElementById("parameter-form");
-function submitNew(e) {
+// FUNCIONES PARÁMETROS
+parameterForm.addEventListener("submit", (e) => {
   e.preventDefault();
-  const data = {
-    type: document.getElementById("process-type").value,
+  const param = {
+    process: document.getElementById("process-type").value,
     material: document.getElementById("material").value,
     thickness: document.getElementById("thickness").value,
     speed: document.getElementById("speed").value,
@@ -49,140 +89,106 @@ function submitNew(e) {
     observations: document.getElementById("observations").value,
     machine: document.getElementById("machine-select").value
   };
-  firebase.database().ref("parameters").push(data, () => {
-    paramForm.reset();
-    loadParameters();
-  });
-}
-paramForm.onsubmit = submitNew;
+  const newRef = db.ref("parameters").push();
+  newRef.set(param);
+  parameterForm.reset();
+});
 
-// Mostrar parámetros con opción de editar y borrar
 function loadParameters() {
-  const tableBody = document.querySelector("#parameter-table tbody");
-  const filter = document.getElementById("filter-machine").value;
-
-  firebase.database().ref("parameters").once("value", (snapshot) => {
-    tableBody.innerHTML = "";
+  db.ref("parameters").on("value", (snapshot) => {
+    parameterTable.innerHTML = "";
     snapshot.forEach((child) => {
-      const key = child.key;
       const param = child.val();
-      if (!filter || param.machine === filter) {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>${param.type}</td>
-          <td>${param.material}</td>
-          <td>${param.thickness}</td>
-          <td>${param.speed}</td>
-          <td>${param.power}</td>
-          <td>${param.hatch}</td>
-          <td>${param.observations}</td>
-          <td>${param.machine}</td>
-          <td>
-            <button onclick="editParameter('${key}')">Editar</button>
-            <button onclick="deleteParameter('${key}')">Borrar</button>
-          </td>
-        `;
-        tableBody.appendChild(row);
-      }
+      const id = child.key;
+
+      const row = parameterTable.insertRow();
+      row.innerHTML = `
+        <td>${param.process}</td>
+        <td>${param.material}</td>
+        <td>${param.thickness}</td>
+        <td>${param.speed}</td>
+        <td>${param.power}</td>
+        <td>${param.hatch}</td>
+        <td>${param.observations}</td>
+        <td>${param.machine}</td>
+        <td>
+          <button class="edit" onclick="editParameter('${id}', ${JSON.stringify(param).replace(/"/g, '&quot;')})">✏️</button>
+          <button class="delete" onclick="deleteParameter('${id}')">🗑️</button>
+        </td>
+      `;
     });
   });
 }
 
-// Editar parámetro
-function editParameter(key) {
-  firebase.database().ref(`parameters/${key}`).once("value", (snapshot) => {
-    const param = snapshot.val();
-    document.getElementById("process-type").value = param.type;
-    document.getElementById("material").value = param.material;
-    document.getElementById("thickness").value = param.thickness;
-    document.getElementById("speed").value = param.speed;
-    document.getElementById("power").value = param.power;
-    document.getElementById("hatch").value = param.hatch;
-    document.getElementById("observations").value = param.observations;
-    document.getElementById("machine-select").value = param.machine;
+function editParameter(id, param) {
+  document.getElementById("process-type").value = param.process;
+  document.getElementById("material").value = param.material;
+  document.getElementById("thickness").value = param.thickness;
+  document.getElementById("speed").value = param.speed;
+  document.getElementById("power").value = param.power;
+  document.getElementById("hatch").value = param.hatch;
+  document.getElementById("observations").value = param.observations;
+  document.getElementById("machine-select").value = param.machine;
 
-    paramForm.removeEventListener("submit", submitNew);
-    paramForm.onsubmit = (e) => {
-      e.preventDefault();
-      const updated = {
-        type: document.getElementById("process-type").value,
-        material: document.getElementById("material").value,
-        thickness: document.getElementById("thickness").value,
-        speed: document.getElementById("speed").value,
-        power: document.getElementById("power").value,
-        hatch: document.getElementById("hatch").value,
-        observations: document.getElementById("observations").value,
-        machine: document.getElementById("machine-select").value
-      };
-      firebase.database().ref(`parameters/${key}`).set(updated, () => {
-        paramForm.reset();
-        loadParameters();
-        paramForm.onsubmit = submitNew;
-      });
-    };
-  });
+  parameterForm.onsubmit = function (e) {
+    e.preventDefault();
+    db.ref("parameters/" + id).set({
+      process: document.getElementById("process-type").value,
+      material: document.getElementById("material").value,
+      thickness: document.getElementById("thickness").value,
+      speed: document.getElementById("speed").value,
+      power: document.getElementById("power").value,
+      hatch: document.getElementById("hatch").value,
+      observations: document.getElementById("observations").value,
+      machine: document.getElementById("machine-select").value
+    });
+    parameterForm.reset();
+    parameterForm.onsubmit = defaultParameterSubmit;
+  };
+}
+const defaultParameterSubmit = parameterForm.onsubmit;
+
+function deleteParameter(id) {
+  db.ref("parameters/" + id).remove();
 }
 
-// Eliminar parámetro
-function deleteParameter(key) {
-  firebase.database().ref(`parameters/${key}`).remove(loadParameters);
+// FUNCIONES IMPRESIÓN
+function printAll() {
+  window.print();
 }
 
-// Filtro
-document.getElementById("filter-machine").addEventListener("change", loadParameters);
-
-// Cargar datos al iniciar
-window.onload = () => {
-  loadMachines();
-  loadParameters();
-};
-
-// Imprimir por máquina
 function printByMachine() {
-  const filter = document.getElementById("filter-machine").value;
-  const printWindow = window.open("", "", "width=800,height=600");
-  printWindow.document.write("<html><head><title>Impresión</title></head><body><h2>Parámetros de corte y grabado</h2><table border='1'><thead><tr><th>Tipo</th><th>Material</th><th>Espesor</th><th>Velocidad</th><th>Potencia</th><th>Hatch</th><th>Observaciones</th><th>Máquina</th></tr></thead><tbody>");
-  firebase.database().ref("parameters").once("value", (snapshot) => {
-    snapshot.forEach((child) => {
-      const param = child.val();
-      if (!filter || param.machine === filter) {
-        printWindow.document.write(`<tr><td>${param.type}</td><td>${param.material}</td><td>${param.thickness}</td><td>${param.speed}</td><td>${param.power}</td><td>${param.hatch}</td><td>${param.observations}</td><td>${param.machine}</td></tr>`);
-      }
-    });
-    printWindow.document.write("</tbody></table></body></html>");
-    printWindow.document.close();
-    printWindow.print();
+  const machine = prompt("Escribí el nombre de la máquina:");
+  if (!machine) return;
+
+  const rows = parameterTable.querySelectorAll("tr");
+  rows.forEach(row => {
+    const machineCell = row.cells[7];
+    row.style.display = (machineCell && machineCell.innerText === machine) ? "" : "none";
   });
+
+  setTimeout(() => {
+    window.print();
+    rows.forEach(row => row.style.display = "");
+  }, 300);
 }
 
-// Imprimir por material
 function printByMaterial() {
-  const selectedMaterial = prompt("Ingresá el nombre del material a imprimir:");
-  if (!selectedMaterial) return;
+  const material = prompt("Escribí el nombre del material:");
+  if (!material) return;
 
-  const printWindow = window.open("", "", "width=800,height=600");
-  printWindow.document.write("<html><head><title>Impresión</title></head><body><h2>Parámetros para: " + selectedMaterial + "</h2><table border='1'><thead><tr><th>Tipo</th><th>Material</th><th>Espesor</th><th>Velocidad</th><th>Potencia</th><th>Hatch</th><th>Observaciones</th><th>Máquina</th></tr></thead><tbody>");
-  firebase.database().ref("parameters").once("value", (snapshot) => {
-    snapshot.forEach((child) => {
-      const param = child.val();
-      if (param.material.toLowerCase() === selectedMaterial.toLowerCase()) {
-        printWindow.document.write(`<tr><td>${param.type}</td><td>${param.material}</td><td>${param.thickness}</td><td>${param.speed}</td><td>${param.power}</td><td>${param.hatch}</td><td>${param.observations}</td><td>${param.machine}</td></tr>`);
-      }
-    });
-    printWindow.document.write("</tbody></table></body></html>");
-    printWindow.document.close();
-    printWindow.print();
+  const rows = parameterTable.querySelectorAll("tr");
+  rows.forEach(row => {
+    const materialCell = row.cells[1];
+    row.style.display = (materialCell && materialCell.innerText === material) ? "" : "none";
   });
+
+  setTimeout(() => {
+    window.print();
+    rows.forEach(row => row.style.display = "");
+  }, 300);
 }
 
-// Agregar botones de impresión a la interfaz
-const controls = document.getElementById("controls") || document.body;
-const printMachineBtn = document.createElement("button");
-printMachineBtn.textContent = "🖨️ Imprimir por Máquina";
-printMachineBtn.onclick = printByMachine;
-controls.appendChild(printMachineBtn);
-
-const printMaterialBtn = document.createElement("button");
-printMaterialBtn.textContent = "🖨️ Imprimir por Material";
-printMaterialBtn.onclick = printByMaterial;
-controls.appendChild(printMaterialBtn);
+// INICIO
+loadMachines();
+loadParameters();
