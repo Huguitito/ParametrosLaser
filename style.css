@@ -1,70 +1,80 @@
 body {
-  font-family: sans-serif;
-  margin: 0;
-  padding: 0;
-  background-color: #fdfdfd;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f9f9f9;
+  padding: 20px;
   color: #333;
 }
 
-.container {
-  max-width: 800px;
-  margin: auto;
-  padding: 1rem;
-}
-
 h1, h2 {
+  color: #444;
   text-align: center;
-  color: #2c3e50;
 }
 
-form {
-  display: grid;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
+form, table, .controls {
+  background: white;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
-input, select, button {
-  padding: 0.5rem;
-  font-size: 1rem;
+input, select, button, textarea {
+  padding: 8px;
+  margin: 8px 4px;
+  border-radius: 6px;
   border: 1px solid #ccc;
-  border-radius: 0.4rem;
+  font-size: 14px;
 }
 
 button {
-  background-color: #3498db;
+  background-color: #4CAF50;
   color: white;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: 0.3s ease;
 }
 
 button:hover {
-  background-color: #2980b9;
+  background-color: #45a049;
 }
 
-.form-section {
-  background-color: #f2f2f2;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  margin-bottom: 2rem;
-}
-
-#parameter-table {
+table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 1rem;
+  font-size: 14px;
 }
 
-#parameter-table th, #parameter-table td {
-  border: 1px solid #ccc;
-  padding: 0.5rem;
-  text-align: center;
+th, td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: left;
 }
 
-@media print {
-  .form-section, h1, h2, button, select {
-    display: none;
+th {
+  background-color: #f2f2f2;
+}
+
+.controls button {
+  margin-right: 10px;
+}
+
+@media screen and (max-width: 768px) {
+  form, table {
+    width: 100%;
+    overflow-x: auto;
   }
-  #parameter-table {
-    font-size: 12px;
+
+  input, select, textarea, button {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .controls button {
+    margin-bottom: 10px;
   }
 }
