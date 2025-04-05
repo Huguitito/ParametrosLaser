@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Parámetros de Corte Láser</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+    apiKey: "AIzaSyBmvpWKmXzEjtybCCu_f74jAaHevY6Xg88",
+    authDomain: "parametroslaser.firebaseapp.com",
+    projectId: "parametroslaser",
+    storageBucket: "parametroslaser.firebasestorage.app",
+    messagingSenderId: "224538884368",
+    appId: "1:224538884368:web:298e319d40739e44fe8d95"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+  </script>
+</head>
+<body>
+  <div class="container">
+    <h1>Parámetros de Corte y Grabado Láser</h1>
+
+    <section class="form-section">
+      <h2>Agregar Máquina</h2>
+      <form id="machine-form">
+        <input type="text" placeholder="Nombre" id="machine-name" required />
+        <input type="text" placeholder="Superficie de trabajo" id="machine-area" required />
+        <input type="number" placeholder="Potencia" id="machine-power" required />
+        <select id="machine-type" required>
+          <option value="">Tipo</option>
+          <option value="CO2">CO2</option>
+          <option value="Fibra">Fibra</option>
+          <option value="Diodo">Diodo</option>
+          <option value="Cutter">Cutter</option>
+        </select>
+        <button type="submit">Agregar máquina</button>
+      </form>
+    </section>
+
+    <section class="form-section">
+      <h2>Agregar Parámetros</h2>
+      <form id="parameter-form">
+        <select id="process-type" required>
+          <option value="">Corte o Grabado</option>
+          <option value="Corte">Corte</option>
+          <option value="Grabado">Grabado</option>
+        </select>
+        <input type="text" placeholder="Material" id="material" required />
+        <input type="text" placeholder="Grosor" id="thickness" required />
+        <input type="number" placeholder="Velocidad" id="speed" required />
+        <input type="number" placeholder="Potencia" id="power" required />
+        <input type="number" placeholder="Hatch" id="hatch" />
+        <input type="text" placeholder="Observaciones" id="observations" />
+        <select id="machine-select" required>
+          <option value="">Seleccionar máquina</option>
+        </select>
+        <button type="submit">Agregar parámetro</button>
+      </form>
+    </section>
+
+    <section>
+      <h2>Parámetros Guardados</h2>
+      <div>
+        <label for="filter-machine">Filtrar por máquina:</label>
+        <select id="filter-machine">
+          <option value="">Todas</option>
+        </select>
+        <button onclick="window.print()">Imprimir</button>
+      </div>
+      <table id="parameter-table">
+        <thead>
+          <tr>
+            <th>Tipo</th>
+            <th>Material</th>
+            <th>Grosor</th>
+            <th>Velocidad</th>
+            <th>Potencia</th>
+            <th>Hatch</th>
+            <th>Observaciones</th>
+            <th>Máquina</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
