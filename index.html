@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Parámetros de Corte Láser</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+  <header>
+    <h1><i class="fas fa-laser-pointer"></i> Parámetros de Corte y Grabado Láser</h1>
+  </header>
+
+  <main>
+    <section id="parameters-section">
+      <h2><i class="fas fa-sliders-h"></i> Parámetros</h2>
+      <form id="parameter-form" class="card">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="process-type">Proceso:</label>
+            <select id="process-type" required>
+              <option value="">Seleccionar</option>
+              <option value="Corte">✂️ Corte</option>
+              <option value="Grabado">🔍 Grabado</option>
+              <option value="Marcado">✏️ Marcado</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="material">Material:</label>
+            <input list="materiales" id="material" placeholder="Seleccionar material" required />
+            <datalist id="materiales">
+              <option value="MDF" />
+              <option value="Marmol" />
+              <option value="Mosaico" />
+              <option value="Azulejo" />
+              <option value="Cuero" />
+              <option value="Lapiz Madera" />
+              <option value="Lapicera Bambu" />
+              <option value="Acero Inox" />
+              <option value="Aluminio" />
+              <option value="Placa Mascotas" />
+              <option value="Acrilico 2mm" />
+              <option value="Acrilico 3mm" />
+              <option value="Sellos" />
+              <option value="Ecocuero" />
+              <option value="Vidrio" />
+              <option value="Bombillas" />
+              <option value="Bicapa" />
+              <option value="Mates de madera" />
+              <option value="QR" />
+              <option value="Polyfan" />
+              <option value="Tabla" />
+              <option value="Stencil" />
+              <option value="Tela jeans" />
+            </datalist>
+          </div>
+
+          <div class="form-group">
+            <label for="thickness">Grosor:</label>
+            <input type="text" id="thickness" placeholder="mm" required />
+          </div>
+
+          <div class="form-group">
+            <label for="speed">Velocidad:</label>
+            <input type="text" id="speed" placeholder="mm/s" required />
+          </div>
+
+          <div class="form-group">
+            <label for="power">Potencia:</label>
+            <input type="text" id="power" placeholder="%" required />
+          </div>
+
+          <div class="form-group">
+            <label for="hatch">Hatch:</label>
+            <input type="text" id="hatch" placeholder="mm" />
+          </div>
+
+          <div class="form-group">
+            <label for="observations">Observaciones:</label>
+            <input type="text" id="observations" placeholder="Notas adicionales" />
+          </div>
+
+          <div class="form-group">
+            <label for="machine-select">Máquina:</label>
+            <select id="machine-select" required></select>
+          </div>
+        </div>
+        
+        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar Parámetro</button>
+      </form>
+
+      <div class="print-buttons">
+        <button onclick="printAll()" class="btn"><i class="fas fa-print"></i> Imprimir Todo</button>
+        <button onclick="printByMachine()" class="btn"><i class="fas fa-industry"></i> Imprimir por Máquina</button>
+        <button onclick="printByMaterial()" class="btn"><i class="fas fa-layer-group"></i> Imprimir por Material</button>
+      </div>
+
+      <div class="table-container">
+        <table id="parameter-table">
+          <thead>
+            <tr>
+              <th>Tipo</th>
+              <th>Material</th>
+              <th>Grosor</th>
+              <th>Velocidad</th>
+              <th>Potencia</th>
+              <th>Hatch</th>
+              <th>Observaciones</th>
+              <th>Máquina</th>
+              <th class="no-print">Acciones</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="machines-section">
+      <h2><i class="fas fa-tools"></i> Cargar Máquina</h2>
+      <form id="machine-form" class="card">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="machine-name">Nombre:</label>
+            <input type="text" id="machine-name" placeholder="Nombre de la máquina" required />
+          </div>
+          
+          <div class="form-group">
+            <label for="machine-area">Área:</label>
+            <input type="text" id="machine-area" placeholder="Área de trabajo" required />
+          </div>
+          
+          <div class="form-group">
+            <label for="machine-power">Potencia:</label>
+            <input type="text" id="machine-power" placeholder="Watts" required />
+          </div>
+          
+          <div class="form-group">
+            <label for="machine-type">Tipo:</label>
+            <select id="machine-type" required>
+              <option value="">Seleccionar</option>
+              <option value="CO2">🔥 CO2</option>
+              <option value="Fibra">⚡ Fibra</option>
+              <option value="Diodo">💡 Diodo</option>
+              <option value="Cutter">✂️ Cutter</option>
+            </select>
+          </div>
+        </div>
+        
+        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar Máquina</button>
+      </form>
+
+      <div class="table-container no-print">
+        <table id="machine-table">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Área</th>
+              <th>Potencia</th>
+              <th>Tipo</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer class="no-print">
+    <p>&copy; 2025 - Sistema de Gestión de Parámetros Láser</p>
+  </footer>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBmvpWKmXzEjtybCCu_f74jAaHevY6Xg88",
+      authDomain: "parametroslaser.firebaseapp.com",
+      projectId: "parametroslaser",
+      storageBucket: "parametroslaser.firebasestorage.app",
+      messagingSenderId: "224538884368",
+      appId: "1:224538884368:web:298e319d40739e44fe8d95",
+      databaseURL: "https://parametroslaser-default-rtdb.firebaseio.com"
+    };
+    firebase.initializeApp(firebaseConfig);
+  </script>
+  <script src="script.js"></script>
+</body>
+</html>
