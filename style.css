@@ -1,34 +1,41 @@
-
 body {
-  font-family: Arial, sans-serif;
-  margin: 20px;
-  background: #f5f5f5;
+  font-family: sans-serif;
+  background: #fff5f5;
+  padding: 2rem;
   color: #333;
 }
-h1 {
-  color: #444;
+h1, h2 {
+  color: #b00020;
 }
-section {
-  margin-bottom: 40px;
+form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
 }
-form input, form select, form button {
-  margin: 5px;
-  padding: 6px;
+input, select, button {
+  padding: 0.5rem;
+  border-radius: 5px;
+}
+button {
+  background: #b00020;
+  color: white;
+  border: none;
 }
 table {
   width: 100%;
   border-collapse: collapse;
-  background: white;
+  margin-top: 1rem;
 }
-table th, table td {
+th, td {
+  padding: 0.5rem;
   border: 1px solid #ccc;
-  padding: 8px;
   text-align: left;
 }
-.action-btn {
-  margin-right: 5px;
-  padding: 3px 8px;
-}
-.edit {
-  background: #ffc107;
+@media screen and (max-width: 600px) {
+  form, table {
+    width: 100%;
+    display: block;
+    overflow-x: auto;
+  }
 }
