@@ -1,125 +1,121 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Parámetros Láser</title>
-  <link rel="stylesheet" href="style.css" />
-
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-
+  <link rel="stylesheet" href="style.css">
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-analytics.js"></script>
 </head>
 <body>
-  <div class="container">
-    <h1>🔴 Parámetros de Corte, Grabado y Marcado</h1>
+  <h1>🔴 Parámetros de Corte y Grabado Láser</h1>
 
-    <section>
-      <h2>➕ Cargar Parámetro</h2>
-      <form id="parameter-form">
-        <select id="process-type" required>
-          <option value="">Tipo de proceso</option>
-          <option value="Corte">Corte</option>
-          <option value="Grabado">Grabado</option>
-          <option value="Marcado">Marcado</option>
-        </select>
-        <select id="material">
-          <option value="">Material (o escribir abajo)</option>
-          <option value="MDF">MDF</option>
-          <option value="Mármol">Mármol</option>
-          <option value="Mosaico">Mosaico</option>
-          <option value="Azulejo">Azulejo</option>
-          <option value="Cuero">Cuero</option>
-          <option value="Lápiz Madera">Lápiz Madera</option>
-          <option value="Lapicera Bambú">Lapicera Bambú</option>
-          <option value="Acero Inox">Acero Inox</option>
-          <option value="Aluminio">Aluminio</option>
-          <option value="Placa Mascotas">Placa Mascotas</option>
-          <option value="Acrílico 2mm">Acrílico 2mm</option>
-          <option value="Acrílico 3mm">Acrílico 3mm</option>
-          <option value="Sellos">Sellos</option>
-          <option value="Ecocuero">Ecocuero</option>
-          <option value="Vidrio">Vidrio</option>
-          <option value="Bombillas">Bombillas</option>
-          <option value="Bicapa">Bicapa</option>
-          <option value="Mates de madera">Mates de madera</option>
-          <option value="QR">QR</option>
-          <option value="Polyfan">Polyfan</option>
-          <option value="Tabla">Tabla</option>
-          <option value="Stencil">Stencil</option>
-          <option value="Tela jeans">Tela jeans</option>
-        </select>
-        <input type="text" id="material-custom" placeholder="Escribir material (opcional)" />
-        <input type="text" id="thickness" placeholder="Espesor" required />
-        <input type="text" id="speed" placeholder="Velocidad" required />
-        <input type="text" id="power" placeholder="Potencia" required />
-        <input type="text" id="hatch" placeholder="Hatch (opcional)" />
-        <input type="text" id="notes" placeholder="Observaciones" />
-        <select id="machine-select" required></select>
-        <button type="submit">💾 Guardar</button>
-      </form>
-    </section>
-
-    <section>
-      <h2>⚙️ Cargar Máquina</h2>
-      <form id="machine-form">
-        <input type="text" id="machine-name" placeholder="Nombre" required />
-        <input type="text" id="machine-area" placeholder="Superficie" required />
-        <input type="text" id="machine-power" placeholder="Potencia" required />
-        <select id="machine-type" required>
-          <option value="">Tipo</option>
-          <option value="CO2">CO2</option>
-          <option value="Fibra">Fibra</option>
-          <option value="Diodo">Diodo</option>
-          <option value="Cutter">Cutter</option>
-        </select>
-        <button type="submit">💾 Agregar</button>
-      </form>
-    </section>
-
-    <section>
-      <h2>📄 Parámetros Cargados</h2>
-      <label>Ordenar por:</label>
-      <select id="sort-by">
-        <option value="">(Sin ordenar)</option>
-        <option value="material">Material</option>
-        <option value="thickness">Espesor</option>
-        <option value="machine">Máquina</option>
-        <option value="date">Fecha</option>
+  <section id="parameter-section">
+    <h2>➕ Cargar Parámetros</h2>
+    <form id="parameter-form">
+      <select id="process-type">
+        <option value="Corte">Corte</option>
+        <option value="Grabado">Grabado</option>
+        <option value="Marcado">Marcado</option>
       </select>
-      <div class="print-buttons">
-        <button onclick="printTable()">🖨️ Imprimir Todo</button>
-        <button onclick="printFiltered('Corte')">Imprimir Solo Corte</button>
-        <button onclick="printFiltered('Grabado')">Imprimir Solo Grabado</button>
-        <button onclick="printFiltered('Marcado')">Imprimir Solo Marcado</button>
-      </div>
-      <table id="parameter-table">
-        <thead>
-          <tr>
-            <th>Tipo</th><th>Material</th><th>Espesor</th><th>Velocidad</th><th>Potencia</th><th>Hatch</th><th>Obs</th><th>Máquina</th><th>🛠️</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </section>
+      <input type="text" id="material" placeholder="Material" list="materiales" required>
+      <datalist id="materiales">
+        <option value="MDF">
+        <option value="Marmol">
+        <option value="Mosaico">
+        <option value="Azulejo">
+        <option value="Cuero">
+        <option value="Lapiz Madera">
+        <option value="Lapicera Bambu">
+        <option value="Acero Inox">
+        <option value="Aluminio">
+        <option value="Placa Mascotas">
+        <option value="Acrilico 2mm">
+        <option value="Acrilico 3mm">
+        <option value="Sellos">
+        <option value="Ecocuero">
+        <option value="Vidrio">
+        <option value="Bombillas">
+        <option value="Bicapa">
+        <option value="Mates de madera">
+        <option value="QR">
+        <option value="Polyfan">
+        <option value="Tabla">
+        <option value="Stencil">
+        <option value="Tela jeans">
+      </datalist>
+      <input type="text" id="thickness" placeholder="Grosor" required>
+      <input type="text" id="speed" placeholder="Velocidad" required>
+      <input type="text" id="power" placeholder="Potencia" required>
+      <input type="text" id="hatch" placeholder="Hatch (opcional)">
+      <input type="text" id="notes" placeholder="Observaciones">
+      <select id="machine-select"></select>
+      <button type="submit">Guardar Parámetro</button>
+    </form>
+  </section>
 
-    <section>
-      <h2>🧰 Máquinas Cargadas</h2>
-      <table id="machine-table">
-        <thead>
-          <tr>
-            <th>Nombre</th><th>Área</th><th>Potencia</th><th>Tipo</th><th>🛠️</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </section>
-  </div>
+  <section id="machine-section">
+    <h2>⚙️ Cargar Máquina</h2>
+    <form id="machine-form">
+      <input type="text" id="machine-name" placeholder="Nombre" required>
+      <input type="text" id="machine-area" placeholder="Superficie de trabajo" required>
+      <input type="text" id="machine-power" placeholder="Potencia" required>
+      <select id="machine-type">
+        <option value="CO2">CO2</option>
+        <option value="Fibra">Fibra</option>
+        <option value="Diodo">Diodo</option>
+        <option value="Cutter">Cutter</option>
+      </select>
+      <button type="submit">Guardar Máquina</button>
+    </form>
+  </section>
 
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <section id="parameter-list">
+    <h2>📋 Listado de Parámetros</h2>
+    <label for="sort-by">Ordenar por:</label>
+    <select id="sort-by">
+      <option value="date">Fecha de carga</option>
+      <option value="material">Material</option>
+      <option value="machine">Máquina</option>
+      <option value="thickness">Grosor</option>
+    </select>
+    <button onclick="printTable()">🖨️ Imprimir</button>
+    <table id="parameter-table">
+      <thead>
+        <tr>
+          <th>Tipo</th>
+          <th>Material</th>
+          <th>Grosor</th>
+          <th>Velocidad</th>
+          <th>Potencia</th>
+          <th>Hatch</th>
+          <th>Observaciones</th>
+          <th>Máquina</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <section id="machine-list">
+    <h2>🛠️ Máquinas Cargadas</h2>
+    <table id="machine-table">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Área</th>
+          <th>Potencia</th>
+          <th>Tipo</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
   <script src="script.js"></script>
 </body>
 </html>
