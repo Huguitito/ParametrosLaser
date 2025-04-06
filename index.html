@@ -1,128 +1,121 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Parámetros de Corte Láser</title>
-  <link rel="stylesheet" href="style.css" />
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Parámetros Láser</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 </head>
 <body>
-  <h1>Parámetros de Corte y Grabado Láser</h1>
+    <h1>🔴 Parámetros Láser</h1>
 
-  <section>
-    <h2>Cargar Máquina</h2>
-    <form id="machine-form">
-      <input type="text" id="machine-name" placeholder="Nombre" required />
-      <input type="text" id="machine-area" placeholder="Área de trabajo" required />
-      <input type="text" id="machine-power" placeholder="Potencia" required />
-      <select id="machine-type" required>
-        <option value="">Tipo de máquina</option>
-        <option value="CO2">CO2</option>
-        <option value="Fibra">Fibra</option>
-        <option value="Diodo">Diodo</option>
-        <option value="Cutter">Cutter</option>
-      </select>
-      <button type="submit">Guardar Máquina</button>
-    </form>
-    <table id="machine-table">
-      <thead>
-        <tr>
-          <th>Nombre</th>
-          <th>Área</th>
-          <th>Potencia</th>
-          <th>Tipo</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </section>
+    <section id="parametros-section">
+        <h2>📋 Cargar Parámetros</h2>
+        <form id="parameter-form">
+            <select id="process-type">
+                <option value="Corte">Corte</option>
+                <option value="Grabado">Grabado</option>
+                <option value="Marcado">Marcado</option>
+            </select>
+            <input list="material-list" id="material" placeholder="Material" required>
+            <datalist id="material-list">
+                <option value="MDF">
+                <option value="Marmol">
+                <option value="Mosaico">
+                <option value="Azulejo">
+                <option value="Cuero">
+                <option value="Lapiz Madera">
+                <option value="Lapicera Bambu">
+                <option value="Acero Inox">
+                <option value="Aluminio">
+                <option value="Placa Mascotas">
+                <option value="Acrilico 2mm">
+                <option value="Acrilico 3mm">
+                <option value="Sellos">
+                <option value="Ecocuero">
+                <option value="Vidrio">
+                <option value="Bombillas">
+                <option value="Bicapa">
+                <option value="Mates de madera">
+                <option value="QR">
+                <option value="Polyfan">
+                <option value="Tabla">
+                <option value="Stencil">
+                <option value="Tela jeans">
+            </datalist>
+            <input type="text" id="thickness" placeholder="Espesor" required />
+            <input type="text" id="speed" placeholder="Velocidad" required />
+            <input type="text" id="power" placeholder="Potencia" required />
+            <input type="text" id="hatch" placeholder="Hatch (opcional)" />
+            <input type="text" id="notes" placeholder="Observaciones" />
+            <select id="machine-select"></select>
+            <button type="submit">Guardar</button>
+        </form>
+    </section>
 
-  <section>
-    <h2>Parámetros</h2>
-    <form id="parameter-form">
-      <select id="process-type" required>
-        <option value="">Proceso</option>
-        <option value="Corte">Corte</option>
-        <option value="Grabado">Grabado</option>
-        <option value="Marcado">Marcado</option>
-      </select>
+    <section id="maquinas-section">
+        <h2>🔧 Cargar Máquina</h2>
+        <form id="machine-form">
+            <input type="text" id="machine-name" placeholder="Nombre" required />
+            <input type="text" id="machine-area" placeholder="Área de trabajo" required />
+            <input type="text" id="machine-power" placeholder="Potencia" required />
+            <select id="machine-type">
+                <option value="CO2">CO2</option>
+                <option value="Fibra">Fibra</option>
+                <option value="Diodo">Diodo</option>
+                <option value="Cutter">Cutter</option>
+            </select>
+            <button type="submit">Agregar Máquina</button>
+        </form>
+    </section>
 
-      <input list="materiales" id="material" placeholder="Material" required />
-      <datalist id="materiales">
-        <option value="MDF" />
-        <option value="Marmol" />
-        <option value="Mosaico" />
-        <option value="Azulejo" />
-        <option value="Cuero" />
-        <option value="Lapiz Madera" />
-        <option value="Lapicera Bambu" />
-        <option value="Acero Inox" />
-        <option value="Aluminio" />
-        <option value="Placa Mascotas" />
-        <option value="Acrilico 2mm" />
-        <option value="Acrilico 3mm" />
-        <option value="Sellos" />
-        <option value="Ecocuero" />
-        <option value="Vidrio" />
-        <option value="Bombillas" />
-        <option value="Bicapa" />
-        <option value="Mates de madera" />
-        <option value="QR" />
-        <option value="Polyfan" />
-        <option value="Tabla" />
-        <option value="Stencil" />
-        <option value="Tela jeans" />
-      </datalist>
+    <section id="ordenar-section">
+        <h2>📊 Listado de Parámetros</h2>
+        <label for="sort-by">Ordenar por:</label>
+        <select id="sort-by">
+            <option value="date">Fecha</option>
+            <option value="material">Material</option>
+            <option value="machine">Máquina</option>
+            <option value="thickness">Espesor</option>
+            <option value="process">Tipo</option>
+        </select>
+        <button onclick="printTable()">🖨️ Imprimir</button>
+        <table id="parameter-table">
+            <thead>
+                <tr>
+                    <th>Tipo</th>
+                    <th>Material</th>
+                    <th>Espesor</th>
+                    <th>Velocidad</th>
+                    <th>Potencia</th>
+                    <th>Hatch</th>
+                    <th>Observaciones</th>
+                    <th>Máquina</th>
+                    <th>Eliminar</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </section>
 
-      <input type="text" id="thickness" placeholder="Grosor" required />
-      <input type="text" id="speed" placeholder="Velocidad" required />
-      <input type="text" id="power" placeholder="Potencia" required />
-      <input type="text" id="hatch" placeholder="Hatch" required />
-      <input type="text" id="observations" placeholder="Observaciones" />
-      <select id="machine-select" required></select>
-      <button type="submit">Guardar Parámetro</button>
-    </form>
+    <section>
+        <h2>🛠️ Máquinas cargadas</h2>
+        <table id="machine-table">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Área</th>
+                    <th>Potencia</th>
+                    <th>Tipo</th>
+                    <th>Eliminar</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </section>
 
-    <div>
-      <button onclick="printAll()">Imprimir Todo</button>
-      <button onclick="printByMachine()">Imprimir por Máquina</button>
-      <button onclick="printByMaterial()">Imprimir por Material</button>
-    </div>
-
-    <table id="parameter-table">
-      <thead>
-        <tr>
-          <th>Tipo</th>
-          <th>Material</th>
-          <th>Grosor</th>
-          <th>Velocidad</th>
-          <th>Potencia</th>
-          <th>Hatch</th>
-          <th>Observaciones</th>
-          <th>Máquina</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </section>
-
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyBmvpWKmXzEjtybCCu_f74jAaHevY6Xg88",
-      authDomain: "parametroslaser.firebaseapp.com",
-      projectId: "parametroslaser",
-      storageBucket: "parametroslaser.firebasestorage.app",
-      messagingSenderId: "224538884368",
-      appId: "1:224538884368:web:298e319d40739e44fe8d95",
-      databaseURL: "https://parametroslaser-default-rtdb.firebaseio.com"
-    };
-    firebase.initializeApp(firebaseConfig);
-  </script>
-  <script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
